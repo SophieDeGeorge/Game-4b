@@ -85,7 +85,7 @@ class Platformer extends Phaser.Scene {
         // Create a layer
         this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.default_tileset, 0, 0);
         this.groundLayer.setScale(2);
-        this.backgroundLayer = this.map.createLayer("Background", this.pixel_tileset, 0, 0);
+        this.backgroundLayer = this.map.createLayer("Background", this.background_tileset, 0, 0);
         this.backgroundLayer.setScale(2);
         this.backgroundLayer.setDepth(-1);
 
