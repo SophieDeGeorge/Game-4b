@@ -95,6 +95,8 @@ class Load extends Phaser.Scene {
                                                 //ANIMATIONS END
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
          // ...and pass to the next Scene
          this.scene.start("platformerScene");
     }

@@ -8,7 +8,7 @@ class Platformer extends Phaser.Scene {
     preload() {
 
         this.load.scenePlugin('AnimatedTiles', './lib/AnimatedTiles.js', 'animatedTiles', 'animatedTiles');
-        document.getElementById('description').innerHTML = '<h2>Controls:<br>W: Up --- A: Left --- S: Down --- D: right<br>Shift: Dash --- Space: Jump --- Enter: Wall Cling';
+        document.getElementById('description').innerHTML = '<h2>Controls:<br>W: Up --- A: Left --- S: Down --- D: right<br>Shift: Dash --- Space: Jump --- Enter: Wall Cling<br>R: Reset';
     }
 
     init() {
@@ -16,7 +16,6 @@ class Platformer extends Phaser.Scene {
         this.ACCELERATION = 2000;
         this.DRAG = 5000;    // DRAG < ACCELERATION = icy slide
         this.physics.world.gravity.y = 2000;
-        //this.physics.world.gravity.y = 0;
 
         this.physics.world.TILE_BIAS = 48;
         this.JUMP_VELOCITY = -600;
@@ -24,8 +23,6 @@ class Platformer extends Phaser.Scene {
 
         this.dash_angleX = 0;
         this.dash_angleY = 0;
-        //this.DASHX = 600;
-        //this.DASHY = 600;
 
         this.MAX_DASHES = 1;
         this.dashes = this.MAX_DASHES;
@@ -147,9 +144,7 @@ class Platformer extends Phaser.Scene {
             // bee particle creation
         this.beeParticles = this.add.particles(0, 0, "kenny-particles", {
             frame: ['magic_03.png', 'magic_05.png'],
-            // TODO: Try: add random: true
             scale: {start: 0.1, end: 0.1},
-            // TODO: Try: maxAliveParticles: 8,
             lifespan: 350,
             gravityY: 0,
             alpha: {start: 1, end: 0.1}, 
@@ -159,11 +154,9 @@ class Platformer extends Phaser.Scene {
             // dash particles
         this.dashParticles = this.add.particles(0, 0, "kenny-particles", {
             frame: ['scratch_01.png'],
-            // TODO: Try: add random: true
             scale: {start: 0.1, end: 0.03},
             maxAliveParticles: 3,
             lifespan: 250,
-            // TODO: Try: gravityY: -400,
             alpha: {start: 1, end: 0.5}, 
             stopAfter: 3
         }).stop();
@@ -181,11 +174,9 @@ class Platformer extends Phaser.Scene {
             // walk particle creation
         this.walkParticles = this.add.particles(0, 0, "kenny-particles", {
             frame: ['smoke_03.png', 'smoke_09.png'],
-            // TODO: Try: add random: true
             scale: {start: 0.03, end: 0.1},
             maxAliveParticles: 3,
             lifespan: 350,
-            // TODO: Try: gravityY: -400,
             alpha: {start: 1, end: 0.1}, 
         }).stop();
 
@@ -202,6 +193,8 @@ class Platformer extends Phaser.Scene {
 
         // set up player avatar                    game.config.width/4, game.config.height/2
         my.sprite.player = this.physics.add.sprite(260, 4250, "platformer_characters", "tile_0000.png").setScale(2);
+            // spawns player at the end
+            //my.sprite.player = this.physics.add.sprite(50, 50, "platformer_characters", "tile_0000.png").setScale(2);
         my.sprite.player.body.setMaxVelocityX(this.MAX_VELOCITYX);
         my.sprite.player.body.allowGravity = true;
 
@@ -228,7 +221,6 @@ class Platformer extends Phaser.Scene {
     
                 // Handle collision detection with bees
         this.physics.add.overlap(my.sprite.player, this.beeGroup, (obj1, obj2) => {
-                //this.beeParticles.startFollow(obj2, obj2.displayWidth, obj2.displayHeight, false);
             this.beeParticles.startFollow(obj2);
             obj2.destroy(); // remove bee on overlap
                 // play collection sound
@@ -315,23 +307,16 @@ class Platformer extends Phaser.Scene {
 
 
     touchingSides() {
-        //console.log("touchingSides");
         if (my.sprite.player.body.blocked.left || my.sprite.player.body.blocked.right) {
             return true;
         } else {
             let tile = (this.map.getTileAtWorldXY(my.sprite.player.body.x - 12, my.sprite.player.body.y)) || (this.map.getTileAtWorldXY(my.sprite.player.body.x + 30, my.sprite.player.body.y));
-            //this.add.sprite(my.sprite.player.body.x + 35, my.sprite.player.body.y, "player");
                 return tile && tile.properties.collides;
         }
     }
 
     update(time, delta) {
 
-        
-        //console.log("gravity at start: " + my.sprite.player.body.allowGravity);
-        //console.log("is clinging at start: " + this.clinging);
-        //console.log("clings: " + this.clings);
-        //console.log("Body Blocked" + (my.sprite.player.body.blocked.left || my.sprite.player.body.blocked.right));
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                 //TIMERS
         
@@ -378,7 +363,6 @@ class Platformer extends Phaser.Scene {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                 //MOVEMENT
         if (this.aKey.isDown) {
-                    //console.log(my.sprite.player.y);
             if (this.clinging == false) {
                     // have the player accelerate to the left
                 my.sprite.player.body.setAccelerationX(-this.ACCELERATION);
@@ -446,12 +430,7 @@ class Platformer extends Phaser.Scene {
                                                 //DASH        
 
         if (Phaser.Input.Keyboard.JustDown(this.shiftKey)) {
-                //console.log(this.MAX_VELOCITYX);
-                //console.log("Dash angleX Before: " + this.dash_angleX);
-                //console.log("Dash angleY Before: " + this.dash_angleY);
-                //console.log("Dashes Before: " + this.dashes);
             if (this.dashes > 0) {
-                    //console.log("Dashes After: " + this.dashes);
                 if (this.yDashTimer <= 0) {
                     this.dash_angleY = 0;
                 }
@@ -470,7 +449,6 @@ class Platformer extends Phaser.Scene {
                     this.dashParticles.setParticleSpeed(this.dash_angleX/2.5, this.dash_angleY/1.4);
                     this.dashParticles.start();
                     this.jumpSFX.play();
-                        //console.log(this.MAX_VELOCITYX);
                     
                 }
 
@@ -486,11 +464,7 @@ class Platformer extends Phaser.Scene {
                     this.dashParticles.start();
                     this.jumpSFX.play();
                     this.isDashing = true;
-                        //console.log("this" + this.MAX_VELOCITYX);
                 }
-
-                        //console.log("Dash angleX After: " + this.dash_angleX);
-                        //console.log("Dash angleY After: " + this.dash_angleY);
                 
             } 
         }
@@ -539,8 +513,6 @@ class Platformer extends Phaser.Scene {
 
         // wall cling
         if ((this.enterKey.isDown) && (this.clings > 0)) {
-            //console.log("clings: " + this.clings)
-            //if (my.sprite.player.body.blocked.left || my.sprite.player.body.blocked.right) {
             if (this.touchingSides() == true) {
                 this.clinging = true;
                 if (this.clings > 0) {
@@ -550,7 +522,6 @@ class Platformer extends Phaser.Scene {
                     console.log("cling particles");
                 }
                 this.clings -= 1;
-                //console.log("we are here");
             } else {
                 this.clinging = false;
             }
@@ -578,12 +549,11 @@ class Platformer extends Phaser.Scene {
             this.scene.restart();
         }
 
-        //console.log(my.sprite.player.y);
         if (my.sprite.player.y <= 40) {
             // end game
-            //console.log(my.sprite.player.y);
             this.endTimer = 4 * 1000;
             this.text = this.add.text(250, 60, 'Congratulations! You win!');
+            this.text = this.add.text(250, 90, 'Made by Sophie DeGeorge');
             this.resetting = true;
             
 
@@ -592,8 +562,6 @@ class Platformer extends Phaser.Scene {
             this.scene.restart();
         }
 
-        //console.log("is clinging at end: " + this.clinging);
-        //console.log("gravity at end: " + my.sprite.player.body.allowGravity);
 
                                                 //GAME RESETS ENDS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
