@@ -31,6 +31,12 @@ class Load extends Phaser.Scene {
             frameHeight: 16
 
         });
+            //background spritesheet
+        this.load.spritesheet("background_tilemap_sheet", "tilemap-backgrounds_packed.png", {
+            frameWidth: 16,
+            frameHeight: 16
+
+        });
 
                                                 //LOAD PNGs END   
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////     
