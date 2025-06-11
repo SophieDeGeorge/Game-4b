@@ -45,11 +45,13 @@ class Load extends Phaser.Scene {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                 //LOAD SOUND EFFECTS
-        // loading sound effects
+
             // jump
         this.load.audio("jumpSFX", "jump.wav");
             // collect
         this.load.audio("collectSFX", "collect.wav");
+            // cling
+        this.load.audio("clingSFX", "cling.wav");
 
                                                 //LOAD SOUND EFFECTS END
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

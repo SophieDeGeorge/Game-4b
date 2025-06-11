@@ -8,6 +8,7 @@ class Platformer extends Phaser.Scene {
     preload() {
 
         this.load.scenePlugin('AnimatedTiles', './lib/AnimatedTiles.js', 'animatedTiles', 'animatedTiles');
+        document.getElementById('description').innerHTML = '<h2>Controls:<br>W: Up --- A: Left --- S: Down --- D: right<br>Shift: Dash --- Space: Jump --- Enter: Wall Cling';
     }
 
     init() {
@@ -43,7 +44,6 @@ class Platformer extends Phaser.Scene {
         this.clinging = false;
 
 
-        //this.MAX_SPEED = 1000;
         this.MAX_VELOCITYX = 300;
 
         this.MAX_DASH_VELOCITY = 2000;
@@ -144,7 +144,7 @@ class Platformer extends Phaser.Scene {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                             //PARTICLE CREATION
 
-    // bee particle creation
+            // bee particle creation
         this.beeParticles = this.add.particles(0, 0, "kenny-particles", {
             frame: ['magic_03.png', 'magic_05.png'],
             // TODO: Try: add random: true
@@ -155,8 +155,30 @@ class Platformer extends Phaser.Scene {
             alpha: {start: 1, end: 0.1}, 
             stopAfter: 3
         }).stop();
+        
+            // dash particles
+        this.dashParticles = this.add.particles(0, 0, "kenny-particles", {
+            frame: ['scratch_01.png'],
+            // TODO: Try: add random: true
+            scale: {start: 0.1, end: 0.03},
+            maxAliveParticles: 3,
+            lifespan: 250,
+            // TODO: Try: gravityY: -400,
+            alpha: {start: 1, end: 0.5}, 
+            stopAfter: 3
+        }).stop();
 
-    // walk particle creation
+            // Cling particle creation
+        this.clingParticles = this.add.particles(0, 0, "kenny-particles", {
+            frame: ['star_05.png', 'star_09.png'],
+            scale: {start: 0.1, end: 0.3},
+            maxAliveParticles: 10,
+            lifespan: 200,
+            alpha: {start: 1, end: 0.8}, 
+            stopAfter: 5
+        }).stop();
+
+            // walk particle creation
         this.walkParticles = this.add.particles(0, 0, "kenny-particles", {
             frame: ['smoke_03.png', 'smoke_09.png'],
             // TODO: Try: add random: true
@@ -167,6 +189,9 @@ class Platformer extends Phaser.Scene {
             alpha: {start: 1, end: 0.1}, 
         }).stop();
 
+
+    
+
                                             //PARTICLE CREATION END
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -176,8 +201,7 @@ class Platformer extends Phaser.Scene {
                                             //CREATE PLAYER BODY
 
         // set up player avatar                    game.config.width/4, game.config.height/2
-        //my.sprite.player = this.physics.add.sprite(300, 50, "platformer_characters", "tile_0000.png").setScale(2);
-        my.sprite.player = this.physics.add.sprite(260, 3750, "platformer_characters", "tile_0000.png").setScale(2);
+        my.sprite.player = this.physics.add.sprite(260, 4250, "platformer_characters", "tile_0000.png").setScale(2);
         my.sprite.player.body.setMaxVelocityX(this.MAX_VELOCITYX);
         my.sprite.player.body.allowGravity = true;
 
@@ -272,6 +296,10 @@ class Platformer extends Phaser.Scene {
         this.collectSFX.loop = false;
         this.collectSFX.volume = 0.15;
 
+        this.clingSFX = this.sound.add("clingSFX");
+        this.clingSFX.loop = false;
+        this.clingSFX.volume = 0.25;
+
                                             //SOUND EFFECTS END
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -287,7 +315,7 @@ class Platformer extends Phaser.Scene {
 
 
     touchingSides() {
-        console.log("touchingSides");
+        //console.log("touchingSides");
         if (my.sprite.player.body.blocked.left || my.sprite.player.body.blocked.right) {
             return true;
         } else {
@@ -396,6 +424,7 @@ class Platformer extends Phaser.Scene {
             my.sprite.player.body.setDragX(this.DRAG);
                 //idle animation
             my.sprite.player.anims.play('idle');
+            this.walkParticles.stop();
         }
 
         if (this.wKey.isDown) {
@@ -437,6 +466,9 @@ class Platformer extends Phaser.Scene {
                     this.MAX_VELOCITYX = this.MAX_DASH_VELOCITY;
                     my.sprite.player.body.setVelocity(this.dash_angleX/2.5, this.dash_angleY/1.4);
                     this.dashes -= 1;
+                    this.dashParticles.startFollow(my.sprite.player, my.sprite.player.displayWidth/2-25, my.sprite.player.displayHeight/2-20, false);
+                    this.dashParticles.setParticleSpeed(this.dash_angleX/2.5, this.dash_angleY/1.4);
+                    this.dashParticles.start();
                     this.jumpSFX.play();
                         //console.log(this.MAX_VELOCITYX);
                     
@@ -449,6 +481,9 @@ class Platformer extends Phaser.Scene {
                     this.MAX_VELOCITYX = this.MAX_DASH_VELOCITY;
                     my.sprite.player.body.setVelocity(this.dash_angleX, this.dash_angleY * 0.9);
                     this.dashes -= 1;
+                    this.dashParticles.startFollow(my.sprite.player, my.sprite.player.displayWidth/2-25, my.sprite.player.displayHeight/2-20, false);
+                    this.dashParticles.setParticleSpeed(this.dash_angleX/2.5, this.dash_angleY/1.4);
+                    this.dashParticles.start();
                     this.jumpSFX.play();
                     this.isDashing = true;
                         //console.log("this" + this.MAX_VELOCITYX);
@@ -504,12 +539,18 @@ class Platformer extends Phaser.Scene {
 
         // wall cling
         if ((this.enterKey.isDown) && (this.clings > 0)) {
-            console.log("clings: " + this.clings)
+            //console.log("clings: " + this.clings)
             //if (my.sprite.player.body.blocked.left || my.sprite.player.body.blocked.right) {
             if (this.touchingSides() == true) {
                 this.clinging = true;
+                if (this.clings > 0) {
+                    this.clingParticles.startFollow(my.sprite.player, my.sprite.player.displayWidth/2-25, my.sprite.player.displayHeight/2-20, false);
+                    this.clingParticles.start();
+                    this.clingSFX.play();
+                    console.log("cling particles");
+                }
                 this.clings -= 1;
-                console.log("we are here");
+                //console.log("we are here");
             } else {
                 this.clinging = false;
             }
