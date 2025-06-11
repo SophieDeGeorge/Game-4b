@@ -53,6 +53,9 @@ class Platformer extends Phaser.Scene {
 
         this.resetting = false;
 
+        this.BOUNDSX = 60 * 16 + 120;
+        this.BOUNDSY = 250 * 16 + 320;
+
         
         
     }
@@ -65,17 +68,18 @@ class Platformer extends Phaser.Scene {
                                             //MAP LOADING
 
         // Create a new tilemap game object which uses 18x18 pixel tiles, and is
-        // 20 tiles wide and 120 tiles tall.
-        this.map = this.add.tilemap("platformer-level-1", 18, 18, 20, 120);
+        // 30 tiles wide and 120 tiles tall.
+        this.map = this.add.tilemap("platformer-level-2", 18, 18, 30, 120);
         //this.map = this.add.tilemap("platformer-level-2", 18, 18, 30, 120);
-        this.physics.world.setBounds(0, 0, 40 * 16 + 20, 240 * 16, true, true, true, true);
+        this.physics.world.setBounds(0, 0, this.BOUNDSX, this,this.BOUNDSY, true, true, true, true);
         
 
         // Add a tileset to the map
         // First parameter: name we gave the tileset in Tiled
         // Second parameter: key for the tilesheet (from this.load.image in Load.js)
         this.default_tileset = this.map.addTilesetImage("tilemap_packed", "tilemap_tiles");
-        this.pixel_tileset = this.map.addTilesetImage("pixel_line_tilemap_packed", "pixel_tilemap_tiles");
+        this.pixel_tileset = this.map.addTilesetImage("pixel-tilemap_packed", "pixel_tilemap_tiles");
+        this.background_tileset = this.map.addTilesetImage("tilemap-backgrounds_packed", "background_tiles")
         
 
         // Create a layer
@@ -252,8 +256,8 @@ class Platformer extends Phaser.Scene {
                                             //CAMERA
 
         // Camera
-        this.cameras.main.setBounds(0, 0, 40 * 16 + 20, 250 * 16);
-        this.cameras.main.startFollow(my.sprite.player, true, 0, 0.25); // (target, [,roundPixels][,lerpX][,lerpY])
+        this.cameras.main.setBounds(0, 0, this.BOUNDSX, this.BOUNDSY);
+        this.cameras.main.startFollow(my.sprite.player, true, 0.25, 0.25); // (target, [,roundPixels][,lerpX][,lerpY])
         this.cameras.main.setDeadzone(50, 50);
         this.cameras.main.setZoom(this.SCALE);
         
